@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Compile Update="Views\AddUpdateStudentPage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Views\StudentEnrollmentPage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Views\StudentManagementPage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Views\StudentProfilePage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+</Project>
