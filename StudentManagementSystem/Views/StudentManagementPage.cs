@@ -1,3 +1,7 @@
+using StudentManagementSystem.DataAccess;
+
+using StudentManagementSystem.Models;
+
 namespace StudentManagementSystem.Views;
 
 public partial class StudentManagementPage : Form
@@ -6,20 +10,15 @@ public partial class StudentManagementPage : Form
     {
         InitializeComponent();
         RefreshStudentGrid();
-        studentGridView.Columns["Id"].Visible = false;
     }
-
-    private void RefreshStudentGrid()
+    private async void RefreshStudentGrid()
     {
         var sqlClient = new SqlClient();
-
-        if (!string.IsNullOrWhiteSpace(searchTxt.Text))
-            studentGridView.DataSource = sqlClient.GetStudents(searchTxt.Text).ToList();
-        else
-            studentGridView.DataSource = sqlClient.GetStudents().ToList();
+        var students = await sqlClient.GetStudents(searchTxt.Text);
+        studentGridView.DataSource = students.ToList();
+        studentGridView.Columns["Id"].Visible = false;
         studentGridView.ResetBindings();
     }
-
     private void searchTxt_KeyPress(object sender, KeyPressEventArgs e)
     {
         if (e.KeyChar == (char)Keys.Enter)
@@ -29,12 +28,10 @@ public partial class StudentManagementPage : Form
             studentGridView.Focus();
         }
     }
-
     private void clearBtn_Click(object sender, EventArgs e)
     {
         searchTxt.Clear(); RefreshStudentGrid();
     }
-
     private void viewBtn_Click(object sender, EventArgs e)
     {
         using var studentProfilePage = new StudentProfilePage(
@@ -42,8 +39,7 @@ public partial class StudentManagementPage : Form
         studentProfilePage.StartPosition = FormStartPosition.CenterParent;
         studentProfilePage.ShowDialog(this);
     }
-
-    private void addBtn_Click(object sender, EventArgs e)
+    private async void addBtn_Click(object sender, EventArgs e)
     {
         using var addPage = new AddUpdateStudentPage();
         addPage.StartPosition = FormStartPosition.CenterParent;
@@ -52,54 +48,61 @@ public partial class StudentManagementPage : Form
             return;
 
         var sqlClient = new SqlClient();
-
-        sqlClient.CreateStudent(new Student
+        try
         {
-            FirstName = addPage.FirstName,
-            LastName = addPage.LastName,
-            Email = addPage.Email
-        });
+            await sqlClient.CreateStudent(addPage.Student);
+        }
+        catch (Exception)
+        {
+            MessageBox.Show("An Error Occured During this Operation", "Error",
+            MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
         RefreshStudentGrid();
-    }
-
-    private void updateBtn_Click(object sender, EventArgs e)
+        }
+    private async void updateBtn_Click(object sender, EventArgs e)
     {
-        using var addPage = new AddUpdateStudentPage();
-        addPage.StartPosition = FormStartPosition.CenterParent;
+        using var updatePage = new AddUpdateStudentPage(
+            (Student)studentGridView.SelectedRows[0].DataBoundItem!
+        );
+        updatePage.StartPosition = FormStartPosition.CenterParent;
 
-        var row = studentGridView.SelectedRows;
-        var student = (Student)row[0].DataBoundItem!;
-
-        addPage.FirstName = student.FirstName;
-        addPage.LastName = student.LastName;
-        addPage.Email = student.Email;
-
-        if (addPage.ShowDialog(this) != DialogResult.OK)
+        if (updatePage.ShowDialog(this) != DialogResult.OK)
             return;
 
-        student.FirstName = addPage.FirstName;
-        student.LastName = addPage.LastName;
-        student.Email = addPage.Email;
-
         var sqlClient = new SqlClient();
-        sqlClient.UpdateStudent(student);
+        try
+        {
+            await sqlClient.UpdateStudent(updatePage.Student);
+        }
+        catch (Exception)
+        {
+            MessageBox.Show("An Error Occured During this Operation", "Error"
+            , MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
         RefreshStudentGrid();
     }
 
-    private void deleteBtn_Click(object sender, EventArgs e)
+    private async void deleteBtn_Click(object sender, EventArgs e)
     {
         var sqlClient = new SqlClient();
-        sqlClient.DeleteStudent((int)studentGridView.SelectedRows[0].Cells["Id"].Value);
-        MessageBox.Show(this, "Student deleted successfully!", "Success",
-            MessageBoxButtons.OK, MessageBoxIcon.Information);
+        try
+        {
+            await sqlClient.DeleteStudent((int)studentGridView.SelectedRows[0].Cells["Id"].Value);
+            MessageBox.Show(this, "Student deleted successfully!", "Success",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception)
+        {
+            MessageBox.Show("An Error Occured During this Operation", "Error",
+            MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
         RefreshStudentGrid();
     }
-
-    private void enrollBtn_Click(object sender, EventArgs e)
+    
+    private async void enrollBtn_Click(object sender, EventArgs e)
     {
         using var enrollPage = new StudentEnrollmentPage(
             (Student)studentGridView.SelectedRows[0].DataBoundItem!);
-
         enrollPage.StartPosition = FormStartPosition.CenterParent;
         enrollPage.ShowDialog(this);
     }
