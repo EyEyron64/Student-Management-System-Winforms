@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+	<connectionStrings>
+		<add name="Default"
+			 connectionString="Server=localhost;Port=3306;Database=student_management_db;User ID=your_user;Password=your_password"
+			 providerName="MySql.Data.MySqlClient" />
+	</connectionStrings>
+</configuration>
