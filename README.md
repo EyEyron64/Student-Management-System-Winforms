@@ -1,5 +1,4 @@
 # Student Management System (WinForms)
-[![Ask DeepWiki](https://devin.ai/assets/askdeepwiki.png)](https://deepwiki.com/EyEyron64/Student-Management-System-Winforms)
 
 A desktop application built with .NET Windows Forms for managing student records. The application allows for full CRUD (Create, Read, Update, Delete) operations on student data, course enrollment management, and connects to a MySQL database for data persistence.
 
